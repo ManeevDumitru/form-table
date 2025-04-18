@@ -1,0 +1,59 @@
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  font-weight: normal;
+}
+
+body {
+  min-height: 100vh;
+  transition:
+    color 0.5s,
+    background-color 0.5s;
+  line-height: 1.4;
+  font-family:
+    Arial,
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    "Fira Sans",
+    "Droid Sans",
+    "Helvetica Neue",
+    sans-serif;
+  font-size: 15px;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@property --initialStateFadeColor1 {
+  syntax: "<color>";
+  initial-value: #e5fae5;
+  inherits: false;
+}
+
+@property --initialStateFadeColor2 {
+  syntax: "<color>";
+  initial-value: #72c466;
+  inherits: false;
+}
+
+.gradient {
+  background: #f8fdf7;
+  background: linear-gradient(
+    145deg,
+    var(--initialStateFadeColor1) 0%,
+    var(--initialStateFadeColor2) 100%
+  ) !important;
+  transition:
+    --initialStateFadeColor1 0.2s,
+    --initialStateFadeColor2 0.2s,
+    0.2s;
+}
