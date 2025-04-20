@@ -9,9 +9,9 @@
 				type="rotate"
 				from="0 8 8"
 				to="360 8 8"
-				dur="1.5s"
+				dur="1s"
 				repeatCount="indefinite"
-				begin="0.5s"/>
+				/>
 		</circle>
 	</svg>
 </template>

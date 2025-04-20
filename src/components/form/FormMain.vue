@@ -1,41 +1,38 @@
 <script setup lang="ts">
 import { InputComponentInterface } from "@/types/Input";
-import {
-  isRequired,
-  isValidDate,
-  isEmail,
-  isNameValid,
-  isPhoneNumber,
-} from "@/helpers/validations";
 import BaseInput from "@/components/base/BaseInput.vue";
-import { isRef, Reactive, reactive, ref, Ref, computed } from "vue";
+import {
+  reactive,
+  ref,
+  computed,
+  onUnmounted,
+} from "vue";
 import BaseButton from "@/components/base/BaseButton.vue";
 import { ClientInterface } from "@/types/Client";
 import { useGlobalStore } from "@/store/global";
+import { FORM_INPUTS } from "@/static/form";
 
 const { addItem } = useGlobalStore();
 
-const model: Reactive<ClientInterface> = reactive({
+const model = reactive<ClientInterface>({
   name: "",
   date: "",
   phone: "",
   email: "",
 });
-const nameInputRef: Ref<InputComponentInterface | null> = ref(null);
-const dateInputRef: Ref<InputComponentInterface | null> = ref(null);
-const phoneInputRef: Ref<InputComponentInterface | null> = ref(null);
-const emailInputRef: Ref<InputComponentInterface | null> = ref(null);
-
-const inputRefs = [nameInputRef, dateInputRef, phoneInputRef, emailInputRef];
 
 let timer: ReturnType<typeof setTimeout> | undefined;
-let loading = ref(false);
-let isValid = computed(() => {
-  return inputRefs.every((refItem) => {
-    if (!isRef(refItem) || !refItem.value) {
+
+const loading = ref<boolean>(false);
+const form = ref<HTMLFormElement | null>(null);
+const inputRefs = ref<(InputComponentInterface | null)[]>([]);
+
+const isValid = computed(() => {
+  return inputRefs.value.every((refItem) => {
+    if (!refItem) {
       return false;
     }
-    return refItem.value.validate();
+    return refItem.validate();
   });
 });
 
@@ -43,101 +40,93 @@ const setData = async () => {
   return new Promise<void>((resolve) => {
     timer = setTimeout(() => {
       addItem({ ...model });
-
-      Object.assign(model, {
-        name: "",
-        date: "",
-        phone: "",
-        email: "",
-      });
       resolve();
     }, 1000);
   });
 };
 
-const submit = async () => {
-  loading.value = true;
+const resetForm = () => {
+  if (form.value) {
+    Object.assign(model, {
+      name: "",
+      date: "",
+      phone: "",
+      email: "",
+    });
+  }
+};
 
-  for (const refItem of inputRefs) {
-    if (!isRef(refItem) || !refItem.value) {
+const submit = async () => {
+  console.log("triggered");
+  try {
+    loading.value = true;
+
+    if (!isValid.value) {
       return;
     }
+
+    await setData();
+    resetForm();
+  } catch (e) {
+    console.log(e);
+  } finally {
+    loading.value = false;
   }
-
-  if (!isValid) {
-    return;
-  }
-
-  await setData();
-
-  loading.value = false;
 };
 
 const setTestData = () => {
-  const testData = {
+  Object.assign(model, {
     name: "Манеев Дмитрий Константинович",
     date: "09.02.2000",
     phone: "+79683789804",
     email: "test@mail.ru",
-  };
-
-  Object.assign(model, {
-    ...testData,
   });
 };
+
+onUnmounted(() => {
+  if (timer) {
+    clearTimeout(timer);
+  }
+});
 </script>
 
 <template>
   <div>
     <form
       ref="form"
-      @submit.prevent
+      @submit.prevent="submit()"
       style="display: flex; flex-direction: column"
     >
       <BaseInput
-        ref="nameInputRef"
-        v-model="model.name"
-        placeholder="Введите имя"
-        :rules="[isRequired(), isNameValid]"
-        name="name"
+        v-for="(input, index) in FORM_INPUTS"
+        :key="input.name"
+        :ref="
+          (el) => {
+            inputRefs[index] = el as unknown as InputComponentInterface;
+          }
+        "
+        v-model="model[input.name]"
+        :placeholder="input.placeholder"
+        :rules="input.rules"
+        :name="input.name"
         style="margin-bottom: 8px"
-      />
-      <BaseInput
-        ref="dateInputRef"
-        v-model="model.date"
-        placeholder="Введите дату рождения"
-        :rules="[isRequired(), isValidDate()]"
-        name="name"
-      />
-      <BaseInput
-        ref="phoneInputRef"
-        v-model="model.phone"
-        placeholder="Введите номер телефона"
-        :rules="[isRequired(), isPhoneNumber]"
-        name="name"
-      />
-      <BaseInput
-        ref="emailInputRef"
-        placeholder="Введите почту"
-        v-model="model.email"
-        :rules="[isRequired(), isEmail]"
-        name="name"
       />
 
       <BaseButton
+        type="submit"
         :loading="loading"
         :disabled="!isValid || loading"
         class="submit-button"
-        @click="submit()"
       >
         Сохранить данные
       </BaseButton>
-
-      <div class="test-container">
-        <BaseButton @click="setTestData()">Автозаполнение</BaseButton>
-        <p class="subtext">тестовыми данными</p>
-      </div>
     </form>
+    <div class="test-container">
+      <BaseButton type="button" @click="setTestData()"
+        >Автозаполнение</BaseButton
+      >
+      <p class="subtext">тестовыми данными</p>
+    </div>
   </div>
 </template>
 
@@ -153,6 +142,7 @@ const setTestData = () => {
 
 .test-container {
   margin: 20px auto 0;
+  text-align: center;
 
   .subtext {
     font-size: 14px;
