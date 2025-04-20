@@ -57,7 +57,6 @@ const resetForm = () => {
 };
 
 const submit = async () => {
-  console.log("triggered");
   try {
     loading.value = true;
 
