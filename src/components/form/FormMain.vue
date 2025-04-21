@@ -1,12 +1,7 @@
 <script setup lang="ts">
 import { InputComponentInterface } from "@/types/Input";
 import BaseInput from "@/components/base/BaseInput.vue";
-import {
-  reactive,
-  ref,
-  computed,
-  onUnmounted,
-} from "vue";
+import { reactive, ref, computed, onUnmounted } from "vue";
 import BaseButton from "@/components/base/BaseButton.vue";
 import { ClientInterface } from "@/types/Client";
 import { useGlobalStore } from "@/store/global";
@@ -24,7 +19,6 @@ const model = reactive<ClientInterface>({
 let timer: ReturnType<typeof setTimeout> | undefined;
 
 const loading = ref<boolean>(false);
-const form = ref<HTMLFormElement | null>(null);
 const inputRefs = ref<(InputComponentInterface | null)[]>([]);
 
 const isValid = computed(() => {
@@ -46,14 +40,12 @@ const setData = async () => {
 };
 
 const resetForm = () => {
-  if (form.value) {
-    Object.assign(model, {
-      name: "",
-      date: "",
-      phone: "",
-      email: "",
-    });
-  }
+	Object.assign(model, {
+		name: "",
+		date: "",
+		phone: "",
+		email: "",
+	});
 };
 
 const submit = async () => {
@@ -92,7 +84,6 @@ onUnmounted(() => {
 <template>
   <div>
     <form
-      ref="form"
       @submit.prevent="submit()"
       style="display: flex; flex-direction: column"
     >
@@ -119,13 +110,12 @@ onUnmounted(() => {
       >
         Сохранить данные
       </BaseButton>
+	    
+	    <div class="test-container">
+		    <BaseButton @click="setTestData()">Автозаполнение</BaseButton>
+		    <p class="subtext">тестовыми данными</p>
+	    </div>
     </form>
-    <div class="test-container">
-      <BaseButton type="button" @click="setTestData()"
-        >Автозаполнение</BaseButton
-      >
-      <p class="subtext">тестовыми данными</p>
-    </div>
   </div>
 </template>
 

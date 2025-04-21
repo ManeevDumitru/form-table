@@ -1,17 +1,14 @@
 <script setup lang="ts">
 import NavBar from "@/components/navigation/NavBar.vue";
 import { useRoute } from "vue-router";
-import { computed } from "vue";
-import form from "./views/form.vue";
-import table from "@/views/table.vue";
-import playground from "./views/playground.vue";
+import {computed, defineAsyncComponent} from "vue";
 
 const route = useRoute();
 
 const components: any = {
-  form,
-  table,
-	playground
+  form: defineAsyncComponent(() => import("@/views/form.vue")),
+  table: defineAsyncComponent(() => import("@/views/table.vue")),
+	playground: defineAsyncComponent(() => import("@/views/playground.vue")),
 };
 
 const currentComponent = computed(() => {

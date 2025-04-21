@@ -6,10 +6,12 @@ interface PropsInterface {
   size?: string;
   disabled?: boolean;
   loading?: boolean;
+	type?: 'button' | 'submit';
 	variant?: 'gradient' | 'text';
 }
 
 const props = withDefaults(defineProps<PropsInterface>(), {
+	type: "button",
   size: "default",
   disabled: false,
   loading: false,
@@ -31,7 +33,7 @@ const dynamicClass = computed(() => {
 
 <template>
   <div class="button-wrapper">
-	  <button :class="dynamicClass" :disabled="props.disabled">
+	  <button :type="props.type" :class="dynamicClass" :disabled="props.disabled">
 		  <slot v-if="!props.loading" slot="default" />
 		  <LoaderIcon v-else class="loader" style="height: 24px" />
 	  </button>
